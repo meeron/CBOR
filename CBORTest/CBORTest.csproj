@@ -98,6 +98,8 @@
     <Compile Include="CBORTest.cs" />
     <Compile Include="CBORTestCommon.cs" />
     <Compile Include="CBORTypeFilterTest.cs" />
+    <Compile Include="Converters\BinaryConverterTests.cs" />
+    <Compile Include="Converters\TestTypes\Simple.cs" />
     <Compile Include="DataUtilitiesTest.cs" />
     <Compile Include="IRandomGen.cs" />
     <Compile Include="MiniCBOR.cs" />

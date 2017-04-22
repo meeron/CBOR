@@ -113,6 +113,7 @@
     <Compile Include="PeterO\Cbor\CBORUtilities.cs" />
     <Compile Include="PeterO\Cbor\CharacterReader.cs" />
     <Compile Include="PeterO\Cbor\CharacterInputWithCount.cs" />
+    <Compile Include="PeterO\Cbor\Converters\BinaryConverter.cs" />
     <Compile Include="PeterO\Cbor\FastInteger2.cs" />
     <Compile Include="PeterO\Cbor\ICBORConverter.cs" />
     <Compile Include="PeterO\Cbor\ICBORNumber.cs" />
@@ -144,5 +145,6 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>
