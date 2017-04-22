@@ -6,16 +6,16 @@ namespace PeterO.Cbor.Converters
 {
     /// <include file='../../../docs.xml'
     /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter"]/*'/>
-    public sealed class BinaryConverter<T>
-        where T : class, new()
+    public static class BinaryConverter
     {
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Serialize(T)"]/*'/>
-        public byte[] Serialize(T obj)
+        public static byte[] Serialize<T>(T obj)
+            where T : class, new()
         {
             var cbor = CBORObject.NewMap();
 
-            foreach (var prop in Properties)
+            foreach (var prop in GetProperties<T>())
             {
                 cbor.Add(prop.Name, SetValue(prop.GetValue(obj)));
             }
@@ -25,14 +25,15 @@ namespace PeterO.Cbor.Converters
 
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Deserialize(System.Byte[])"]/*'/>
-        public T Deserialize(byte[] serializedOb)
+        public static T Deserialize<T>(byte[] serializedOb)
+            where T : class, new()
         {
             var cbor = CBORObject.DecodeFromBytes(serializedOb);
 
             var obj = new T();
 
             CBORObject cborPropValue;
-            foreach (var prop in Properties)
+            foreach (var prop in GetProperties<T>())
             {
                 if (cbor.ContainsKey(prop.Name))
                 {
@@ -45,7 +46,7 @@ namespace PeterO.Cbor.Converters
             return obj;
         }
 
-        private object SetValue(object value)
+        private static object SetValue(object value)
         {
             if (value is DateTime)
                 return ((DateTime)value).Ticks;
@@ -65,7 +66,7 @@ namespace PeterO.Cbor.Converters
             return value;
         }
 
-        private object GetValue(Type type, CBORObject cbor)
+        private static object GetValue(Type type, CBORObject cbor)
         {
             if (type == typeof(int))
                 return cbor.AsInt32();
@@ -124,6 +125,6 @@ namespace PeterO.Cbor.Converters
             return null;
         }
 
-        private IEnumerable<PropertyInfo> Properties => typeof(T).GetRuntimeProperties();
+        private static IEnumerable<PropertyInfo> GetProperties<T>() => typeof(T).GetRuntimeProperties();
     }
 }

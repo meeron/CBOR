@@ -29,10 +29,8 @@ namespace CBORTest.Converters
                 Char = char.MaxValue
             };
 
-            var converter = new BinaryConverter<Simple>();
-
-            byte[] serializedData = converter.Serialize(testObj);
-            Simple deserializedObj = converter.Deserialize(serializedData);
+            byte[] serializedData = BinaryConverter.Serialize(testObj);
+            Simple deserializedObj = BinaryConverter.Deserialize<Simple>(serializedData);
 
             Assert.IsNotNull(deserializedObj);
             Assert.AreEqual(testObj.Name, deserializedObj.Name);
@@ -62,10 +60,8 @@ namespace CBORTest.Converters
                 Guid = Guid.NewGuid()
             };
 
-            var converter = new BinaryConverter<Extendent>();
-
-            byte[] serializedData = converter.Serialize(testObj);
-            Extendent deserializedObj = converter.Deserialize(serializedData);
+            byte[] serializedData = BinaryConverter.Serialize(testObj);
+            Extendent deserializedObj = BinaryConverter.Deserialize<Extendent>(serializedData);
 
             Assert.IsNotNull(deserializedObj);
             Assert.AreEqual(testObj.DateTime, deserializedObj.DateTime);
