@@ -71,8 +71,14 @@ namespace PeterO.Cbor {
 
     private static decimal ExtendedDecimalToDecimal(EDecimal
       extendedNumber) {
-      return (decimal)extendedNumber;
-    }
+            System.Globalization.NumberStyles numStyles = System.Globalization.NumberStyles.Number |
+                    System.Globalization.NumberStyles.AllowExponent;
+
+            if (extendedNumber.IsInfinity() || extendedNumber.IsNaN())
+                throw new OverflowException("This object's value is out of range");
+
+            return decimal.Parse(extendedNumber.ToString(), numStyles, System.Globalization.CultureInfo.InvariantCulture);
+        }
 
     /// <include file='../../docs.xml'
     /// path='docs/doc[@name="M:PeterO.Cbor.CBORObject.AsDecimal"]/*'/>
