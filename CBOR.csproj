@@ -114,6 +114,7 @@
     <Compile Include="PeterO\Cbor\CharacterReader.cs" />
     <Compile Include="PeterO\Cbor\CharacterInputWithCount.cs" />
     <Compile Include="PeterO\Cbor\Converters\BinaryConverter.cs" />
+    <Compile Include="PeterO\Cbor\Converters\Helpers.cs" />
     <Compile Include="PeterO\Cbor\FastInteger2.cs" />
     <Compile Include="PeterO\Cbor\ICBORConverter.cs" />
     <Compile Include="PeterO\Cbor\ICBORNumber.cs" />

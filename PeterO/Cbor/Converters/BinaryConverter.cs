@@ -17,7 +17,7 @@ namespace PeterO.Cbor.Converters
 
             foreach (var prop in Properties)
             {
-                cbor.Add(prop.Name, prop.GetValue(obj));
+                cbor.Add(prop.Name, SetValue(prop.GetValue(obj)));
             }
 
             return cbor.EncodeToBytes();
@@ -43,6 +43,26 @@ namespace PeterO.Cbor.Converters
             }
 
             return obj;
+        }
+
+        private object SetValue(object value)
+        {
+            if (value is DateTime)
+                return ((DateTime)value).Ticks;
+
+            if (value is TimeSpan)
+                return ((TimeSpan)value).Ticks;
+
+            if (value is DateTimeOffset)
+                return Helpers.DateTimeOffsetToBytes((DateTimeOffset)value);
+
+            if (value is Guid)
+                return ((Guid)value).ToByteArray();
+
+            if (value is Enum)
+                return (int)value;
+
+            return value;
         }
 
         private object GetValue(Type type, CBORObject cbor)
@@ -88,6 +108,18 @@ namespace PeterO.Cbor.Converters
 
             if (type == typeof(char))
                 return Convert.ToChar(cbor.AsString());
+
+            if (type == typeof(DateTime))
+                return new DateTime(cbor.AsInt64());
+
+            if (type == typeof(TimeSpan))
+                return new TimeSpan(cbor.AsInt64());
+
+            if (type == typeof(DateTimeOffset))
+                return Helpers.DateTimeOffsetFromBytes(cbor.GetByteString());
+
+            if (type == typeof(Guid))
+                return new Guid(cbor.GetByteString());
 
             return null;
         }

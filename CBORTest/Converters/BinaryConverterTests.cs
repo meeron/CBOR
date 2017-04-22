@@ -50,5 +50,28 @@ namespace CBORTest.Converters
             Assert.AreEqual(testObj.ULong, deserializedObj.ULong);
             Assert.AreEqual(testObj.Char, deserializedObj.Char);
         }
+
+        [Test]
+        public void SerializeDeserializeExtendentClassTest()
+        {
+            var testObj = new Extendent
+            {
+                DateTime = DateTime.Now,
+                TimeSpan = TimeSpan.MaxValue,
+                DateTimeOffset = DateTimeOffset.Now,
+                Guid = Guid.NewGuid()
+            };
+
+            var converter = new BinaryConverter<Extendent>();
+
+            byte[] serializedData = converter.Serialize(testObj);
+            Extendent deserializedObj = converter.Deserialize(serializedData);
+
+            Assert.IsNotNull(deserializedObj);
+            Assert.AreEqual(testObj.DateTime, deserializedObj.DateTime);
+            Assert.AreEqual(testObj.TimeSpan, deserializedObj.TimeSpan);
+            Assert.AreEqual(testObj.DateTimeOffset, deserializedObj.DateTimeOffset);
+            Assert.AreEqual(testObj.Guid, deserializedObj.Guid);
+        }
     }
 }
