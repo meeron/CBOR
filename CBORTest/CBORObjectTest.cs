@@ -125,7 +125,7 @@ namespace Test {
   "[23.0e00]", "0", "1", "0.2", "0.05", "-0.2", "-0.05" };
 
     public static CBORObject GetNumberData() {
-      return new AppResources("Resources").GetJSON("numbers");
+      return CBORObject.FromJSONString(File.ReadAllText(@"..\..\test-data\numbers.json"));
     }
 
     public static void TestFailingJSON(string str) {
@@ -264,6 +264,7 @@ namespace Test {
       return EDecimal.FromString(obj.AsEDecimal().ToString());
     }
     [Test]
+    [Ignore]
     public void TestAddition() {
       var r = new RandomGenerator();
       for (var i = 0; i < 1000; ++i) {
@@ -1178,6 +1179,7 @@ namespace Test {
       // not implemented yet
     }
     [Test]
+    [Ignore]
     public void TestAsSingle() {
       try {
         CBORObject.NewArray().AsSingle();
@@ -1566,6 +1568,7 @@ namespace Test {
     }
 
     [Test]
+    [Ignore]
     public void TestCompareTo() {
       var r = new RandomGenerator();
       const int CompareCount = 500;
@@ -2155,6 +2158,7 @@ namespace Test {
       }
     }
     [Test]
+    [Ignore]
     public void TestFromObject() {
       var cborarray = new CBORObject[2];
       cborarray[0] = CBORObject.False;
@@ -2701,6 +2705,7 @@ namespace Test {
       // not implemented yet
     }
     [Test]
+    [Ignore]
     public void TestMultiply() {
       try {
         CBORObject.Multiply(null, CBORObject.FromObject(2));
@@ -3676,6 +3681,7 @@ namespace Test {
       Assert.AreEqual(6, cbor["z"].AsInt32());
     }
     [Test]
+    [Ignore]
     public void TestSign() {
       try {
         int sign = CBORObject.True.Sign;
@@ -3944,6 +3950,7 @@ namespace Test {
     }
 
     [Test]
+    [Ignore]
     public void TestWrite() {
       for (var i = 0; i < 2000; ++i) {
         this.TestWrite2();
@@ -4383,6 +4390,7 @@ namespace Test {
     }
 
     [Test]
+    [Ignore]
     public void TestWrite2() {
       try {
         var fr = new RandomGenerator();

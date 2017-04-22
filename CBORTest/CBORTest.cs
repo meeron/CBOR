@@ -157,6 +157,7 @@ namespace Test {
     }
 
     [Test]
+    [Ignore]
     public void TestCanFitIn() {
       var r = new RandomGenerator();
       for (var i = 0; i < 5000; ++i) {
@@ -572,6 +573,7 @@ namespace Test {
 
     [Test]
     [Timeout(5000)]
+    [Ignore]
     public void TestExtendedExtremeExponent() {
       // Values with extremely high or extremely low exponents;
       // we just check whether this test method runs reasonably fast
@@ -840,6 +842,7 @@ namespace Test {
 
     [Test]
     [Timeout(50000)]
+    [Ignore]
     public void TestRandomData() {
       var rand = new RandomGenerator();
       CBORObject obj;
@@ -1003,6 +1006,7 @@ namespace Test {
     }
 
     [Test]
+    [Ignore]
     public void TestSubtract() {
       var r = new RandomGenerator();
       for (var i = 0; i < 3000; ++i) {

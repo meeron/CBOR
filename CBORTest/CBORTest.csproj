@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{8FE63143-541E-448D-8337-A98D1FA51541}</ProjectGuid>
@@ -88,7 +88,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppResources.cs" />
     <Compile Include="BEncoding.cs" />
     <Compile Include="BEncodingTest.cs" />
     <Compile Include="CBORDataUtilitiesTest.cs" />
@@ -116,6 +115,7 @@
     <None Include="app.config" />
     <None Include="CBOR.ruleset" />
     <None Include="packages.config" />
+    <None Include="test-data\numbers.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CBOR.csproj">
@@ -125,9 +125,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
