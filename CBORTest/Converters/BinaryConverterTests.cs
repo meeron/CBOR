@@ -83,8 +83,25 @@ namespace CBORTest.Converters
                 {
                     { 1, "test1" },
                     { 2, "test2" }
-                }
+                },
+                Simple = new Simple
+                {
+                    Name = "text",
+                    Long = long.MaxValue
+                },
+                Extendent = new Extendent
+                {
+                    DateTime = DateTime.Now,
+                    Guid = Guid.NewGuid()
+                },
+                ListOfComplex = new List<Complex>()
             };
+            testObj.ListOfComplex.Add(new Complex
+            {
+                ArrayOfInt = new[] { 6, 3 },
+                EnumerableOfString = new List<string>() { "test5", "test6", "test3" },
+                ListOfDateTime = new List<DateTime>() { DateTime.Now.AddDays(8), DateTime.Now.AddDays(-1) }
+            });
 
             byte[] serializedData = BinaryConverter.Serialize(testObj);
             Complex deserializedObj = BinaryConverter.Deserialize<Complex>(serializedData);
@@ -94,6 +111,20 @@ namespace CBORTest.Converters
             Assert.AreEqual(testObj.EnumerableOfString, deserializedObj.EnumerableOfString);
             Assert.AreEqual(testObj.ListOfDateTime, deserializedObj.ListOfDateTime);
             Assert.AreEqual(testObj.DictionaryOfIntAndString, deserializedObj.DictionaryOfIntAndString);
+
+            Assert.IsNotNull(deserializedObj.Simple);
+            Assert.AreEqual(testObj.Simple.Name, deserializedObj.Simple.Name);
+            Assert.AreEqual(testObj.Simple.Long, deserializedObj.Simple.Long);
+
+            Assert.IsNotNull(deserializedObj.Extendent);
+            Assert.AreEqual(testObj.Extendent.DateTime, deserializedObj.Extendent.DateTime);
+            Assert.AreEqual(testObj.Extendent.Guid, deserializedObj.Extendent.Guid);
+
+            Assert.IsNotNull(deserializedObj.ListOfComplex);
+            Assert.AreEqual(testObj.ListOfComplex[0].ArrayOfInt, deserializedObj.ListOfComplex[0].ArrayOfInt);
+            Assert.AreEqual(testObj.ListOfComplex[0].EnumerableOfString, deserializedObj.ListOfComplex[0].EnumerableOfString);
+            Assert.AreEqual(testObj.ListOfComplex[0].ListOfDateTime, deserializedObj.ListOfComplex[0].ListOfDateTime);
+            Assert.AreEqual(testObj.ListOfComplex[0].DictionaryOfIntAndString, deserializedObj.ListOfComplex[0].DictionaryOfIntAndString);
         }
     }
 }

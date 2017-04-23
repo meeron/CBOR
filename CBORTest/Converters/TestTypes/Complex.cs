@@ -13,5 +13,11 @@ namespace CBORTest.Converters.TestTypes
         public List<DateTime> ListOfDateTime { get; set; }
 
         public Dictionary<int, string> DictionaryOfIntAndString { get; set; }
+
+        public Simple Simple { get; set;}
+
+        public Extendent Extendent { get; set; }
+
+        public List<Complex> ListOfComplex { get; set; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace PeterO.Cbor.Converters
 {
@@ -20,6 +22,20 @@ namespace PeterO.Cbor.Converters
             int offset = BitConverter.ToInt32(data, sizeof(long));
 
             return new DateTimeOffset(ticks, TimeSpan.FromHours(offset));
+        }
+
+        public static IDictionary ObjectToDictionary(object obj)
+        {
+            Dictionary<string, object> objMap = new Dictionary<string, object>();
+
+            var props = obj.GetType().GetRuntimeProperties();
+
+            foreach (var prop in props)
+            {
+                objMap.Add(prop.Name, prop.GetValue(obj));
+            }
+
+            return objMap;
         }
     }
 }

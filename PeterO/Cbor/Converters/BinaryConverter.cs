@@ -50,6 +50,9 @@ namespace PeterO.Cbor.Converters
 
         private static object SetValue(object value)
         {
+            if (value == null)
+                return CBORObject.Null;
+
             if (value is DateTime)
                 return ((DateTime)value).Ticks;
 
@@ -66,15 +69,23 @@ namespace PeterO.Cbor.Converters
                 throw new NotSupportedException("Enums are not supported");
 
             if (value is IDictionary)
-                return SetDictionaryValye(value as IDictionary);
+                return SetDictionaryValue(value as IDictionary);
 
             if (value is IEnumerable && !(value is string))
                 return SetCollectionValue(value as IEnumerable);
 
+            if (!value.GetType().Namespace.StartsWith("System"))
+                return SetObjectValue(value);
+
             return value;
         }
 
-        private static object SetDictionaryValye(IDictionary dictionary)
+        private static object SetObjectValue(object value)
+        {
+            return SetDictionaryValue(Helpers.ObjectToDictionary(value));
+        }
+
+        private static object SetDictionaryValue(IDictionary dictionary)
         {
             var cborMap = CBORObject.NewMap();
 
@@ -102,6 +113,9 @@ namespace PeterO.Cbor.Converters
 
         private static object GetValue(Type type, CBORObject cbor)
         {
+            if (cbor.IsNull)
+                return null;
+
             if (type == typeof(int))
                 return cbor.AsInt32();
 
@@ -168,7 +182,27 @@ namespace PeterO.Cbor.Converters
             if (type.Name.StartsWith("Dictionary"))
                 return GetDictionaryValue(type, cbor);
 
+            if (!type.Namespace.StartsWith("System"))
+                return GetObjectValue(type, cbor);
+
             return null;
+        }
+
+        private static object GetObjectValue(Type type, CBORObject cbor)
+        {
+            object instance = Activator.CreateInstance(type);
+
+            var props = type.GetRuntimeProperties();
+
+            foreach (var prop in props)
+            {
+                if (cbor.ContainsKey(prop.Name))
+                {
+                    prop.SetValue(instance, GetValue(prop.PropertyType, cbor[prop.Name]));
+                }
+            }
+
+            return instance;
         }
 
         private static object GetDictionaryValue(Type type, CBORObject cbor)
