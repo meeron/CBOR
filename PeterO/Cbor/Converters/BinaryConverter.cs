@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace PeterO.Cbor.Converters
@@ -63,7 +65,39 @@ namespace PeterO.Cbor.Converters
             if (value is Enum)
                 throw new NotSupportedException("Enums are not supported");
 
+            if (value is IDictionary)
+                return SetDictionaryValye(value as IDictionary);
+
+            if (value is IEnumerable && !(value is string))
+                return SetCollectionValue(value as IEnumerable);
+
             return value;
+        }
+
+        private static object SetDictionaryValye(IDictionary dictionary)
+        {
+            var cborMap = CBORObject.NewMap();
+
+            foreach (var key in dictionary.Keys)
+            {
+                cborMap.Add(SetValue(key), SetValue(dictionary[key]));
+            }
+
+            return cborMap;
+        }
+
+        private static object SetCollectionValue(IEnumerable enumerable)
+        {
+            var cborArray = CBORObject.NewArray();
+
+            foreach (var item in enumerable)
+            {
+
+                cborArray.Add(SetValue(item));
+            }
+
+
+            return cborArray;
         }
 
         private static object GetValue(Type type, CBORObject cbor)
@@ -122,7 +156,55 @@ namespace PeterO.Cbor.Converters
             if (type == typeof(Guid))
                 return new Guid(cbor.GetByteString());
 
+            if (type.IsArray )
+                return GetArrayValue(type.GetElementType(), cbor);
+
+            if (type.GenericTypeArguments.Length > 0 && type.Name.StartsWith("IEnumerable"))
+                return GetArrayValue(type.GenericTypeArguments[0], cbor);
+
+            if (type.Name.StartsWith("List"))
+                return GetListValue(type.GenericTypeArguments[0], cbor);
+
+            if (type.Name.StartsWith("Dictionary"))
+                return GetDictionaryValue(type, cbor);
+
             return null;
+        }
+
+        private static object GetDictionaryValue(Type type, CBORObject cbor)
+        {
+            var dictType = typeof(Dictionary<,>).MakeGenericType(type.GenericTypeArguments);
+            var dictionray = Activator.CreateInstance(dictType) as IDictionary;
+
+            var keyType = type.GenericTypeArguments[0];
+            var valType = type.GenericTypeArguments[1];
+
+            foreach (var key in cbor.Keys)
+            {
+                dictionray.Add(GetValue(keyType, key), GetValue(valType, cbor[key]));
+            }
+
+            return dictionray;
+        }
+
+        private static object GetListValue(Type elementType, CBORObject cbor)
+        {
+            var genericListType = typeof(List<>).MakeGenericType(new[] { elementType });
+            return Activator.CreateInstance(genericListType, GetArrayValue(elementType, cbor));
+        }
+
+        private static object GetArrayValue(Type elementType, CBORObject cbor)
+        {
+            var value = Array.CreateInstance(elementType, cbor.Values.Count);
+
+            int index = 0;
+            foreach (var item in cbor.Values)
+            {
+                value.SetValue(GetValue(elementType, item), index);
+                index++;
+            }
+
+            return value;
         }
 
         private static IEnumerable<PropertyInfo> GetProperties<T>() => typeof(T).GetRuntimeProperties();
