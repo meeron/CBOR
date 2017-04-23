@@ -13,39 +13,17 @@ namespace PeterO.Cbor.Converters
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Serialize(T)"]/*'/>
         public static byte[] Serialize<T>(T obj)
-            where T : class, new()
         {
-            var cbor = CBORObject.NewMap();
-
-            foreach (var prop in GetProperties<T>())
-            {
-                cbor.Add(prop.Name, SetValue(prop.GetValue(obj)));
-            }
-
+            var cbor = SetValue(obj) as CBORObject;
             return cbor.EncodeToBytes();
         }
 
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Deserialize(System.Byte[])"]/*'/>
         public static T Deserialize<T>(byte[] serializedOb)
-            where T : class, new()
         {
             var cbor = CBORObject.DecodeFromBytes(serializedOb);
-
-            var obj = new T();
-
-            CBORObject cborPropValue;
-            foreach (var prop in GetProperties<T>())
-            {
-                if (cbor.ContainsKey(prop.Name))
-                {
-                    cborPropValue = cbor[prop.Name];
-
-                    prop.SetValue(obj, GetValue(prop.PropertyType, cborPropValue));
-                }
-            }
-
-            return obj;
+            return (T)GetValue(typeof(T), cbor);
         }
 
         private static object SetValue(object value)
@@ -80,7 +58,7 @@ namespace PeterO.Cbor.Converters
             if (!value.GetType().Namespace.StartsWith("System"))
                 return SetObjectValue(value);
 
-            return value;
+            return CBORObject.FromObject(value);
         }
 
         private static object SetObjectValue(object value)

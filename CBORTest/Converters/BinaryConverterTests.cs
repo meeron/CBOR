@@ -10,6 +10,17 @@ namespace CBORTest.Converters
     public class BinaryConverterTests
     {
         [Test]
+        public void SerializeDeserializeAnyObject()
+        {
+            int testInt = int.MaxValue;
+
+            byte[] serializedData = BinaryConverter.Serialize(testInt);
+            int deserializedObj = BinaryConverter.Deserialize<int>(serializedData);
+
+            Assert.AreEqual(testInt, deserializedObj);
+        }
+
+        [Test]
         public void SerializeDeserializeSimpleClassTest()
         {
             var testObj = new Simple
