@@ -77,6 +77,7 @@ namespace CBORTest.Converters
             var testObj = new Complex
             {
                 ArrayOfInt = new[] { 1, 2 ,3 },
+                ArrayOfByte = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
                 EnumerableOfString = new List<string>() { "test1", "test2" },
                 ListOfDateTime = new List<DateTime>() { DateTime.Now, DateTime.Now.AddDays(-1)  },
                 DictionaryOfIntAndString = new Dictionary<int, string>

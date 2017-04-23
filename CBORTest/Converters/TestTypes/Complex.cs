@@ -8,6 +8,8 @@ namespace CBORTest.Converters.TestTypes
     {
         public int[] ArrayOfInt { get; set; }
 
+        public byte[] ArrayOfByte { get; set; }
+
         public IEnumerable<string> EnumerableOfString { get; set; }
 
         public List<DateTime> ListOfDateTime { get; set; }

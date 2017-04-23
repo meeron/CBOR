@@ -53,6 +53,9 @@ namespace PeterO.Cbor.Converters
             if (value == null)
                 return CBORObject.Null;
 
+            if (value is byte[])
+                return value;
+
             if (value is DateTime)
                 return ((DateTime)value).Ticks;
 
@@ -157,6 +160,9 @@ namespace PeterO.Cbor.Converters
 
             if (type == typeof(char))
                 return Convert.ToChar(cbor.AsString());
+
+            if (type == typeof(byte[]))
+                return cbor.GetByteString();
 
             if (type == typeof(DateTime))
                 return new DateTime(cbor.AsInt64());
