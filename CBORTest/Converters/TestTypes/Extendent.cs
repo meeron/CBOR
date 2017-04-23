@@ -12,6 +12,7 @@ namespace CBORTest.Converters.TestTypes
 
         public Guid Guid { get; set; }
 
+        //TODO: support enums
         //public EValues CustomEnum { get; set; }
     }
 

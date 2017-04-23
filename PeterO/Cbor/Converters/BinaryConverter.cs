@@ -61,7 +61,7 @@ namespace PeterO.Cbor.Converters
                 return ((Guid)value).ToByteArray();
 
             if (value is Enum)
-                return (int)value;
+                throw new NotSupportedException("Enums are not supported");
 
             return value;
         }
