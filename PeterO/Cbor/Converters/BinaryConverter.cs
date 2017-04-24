@@ -14,85 +14,78 @@ namespace PeterO.Cbor.Converters
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Serialize(T)"]/*'/>
         public static byte[] Serialize<T>(T obj)
         {
-            var cbor = SetValue(obj) as CBORObject;
-            return cbor.EncodeToBytes();
+            return GetCborFromObject(obj).EncodeToBytes();
         }
 
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Deserialize(System.Byte[])"]/*'/>
         public static T Deserialize<T>(byte[] serializedOb)
         {
-            var cbor = CBORObject.DecodeFromBytes(serializedOb);
-            return (T)GetValue(typeof(T), cbor);
+            return (T)GetObjectFromCbor(typeof(T), CBORObject.DecodeFromBytes(serializedOb));
         }
 
-        private static object SetValue(object value)
+        private static CBORObject GetCborFromObject(object value)
         {
             if (value == null)
                 return CBORObject.Null;
 
             if (value is byte[])
-                return value;
+                return CBORObject.FromObject(value);
 
             if (value is DateTime)
-                return ((DateTime)value).Ticks;
+                return CBORObject.FromObject(((DateTime)value).Ticks);
 
             if (value is TimeSpan)
-                return ((TimeSpan)value).Ticks;
+                return CBORObject.FromObject(((TimeSpan)value).Ticks);
 
             if (value is DateTimeOffset)
-                return Helpers.DateTimeOffsetToBytes((DateTimeOffset)value);
+                return CBORObject.FromObject(Helpers.DateTimeOffsetToBytes((DateTimeOffset)value));
 
             if (value is Guid)
-                return ((Guid)value).ToByteArray();
+                return CBORObject.FromObject(((Guid)value).ToByteArray());
 
             if (value is Enum)
                 throw new NotSupportedException("Enums are not supported");
 
             if (value is IDictionary)
-                return SetDictionaryValue(value as IDictionary);
+                return GetCborFromDictionary(value as IDictionary);
 
             if (value is IEnumerable && !(value is string))
-                return SetCollectionValue(value as IEnumerable);
+                return GetCborFromEnumerable(value as IEnumerable);
 
             if (!value.GetType().Namespace.StartsWith("System"))
-                return SetObjectValue(value);
+                return GetCborFromDictionary(Helpers.ObjectToDictionary(value));
 
             return CBORObject.FromObject(value);
         }
 
-        private static object SetObjectValue(object value)
-        {
-            return SetDictionaryValue(Helpers.ObjectToDictionary(value));
-        }
-
-        private static object SetDictionaryValue(IDictionary dictionary)
+        private static CBORObject GetCborFromDictionary(IDictionary dictionary)
         {
             var cborMap = CBORObject.NewMap();
 
             foreach (var key in dictionary.Keys)
             {
-                cborMap.Add(SetValue(key), SetValue(dictionary[key]));
+                cborMap.Add(GetCborFromObject(key), GetCborFromObject(dictionary[key]));
             }
 
             return cborMap;
         }
 
-        private static object SetCollectionValue(IEnumerable enumerable)
+        private static CBORObject GetCborFromEnumerable(IEnumerable enumerable)
         {
             var cborArray = CBORObject.NewArray();
 
             foreach (var item in enumerable)
             {
 
-                cborArray.Add(SetValue(item));
+                cborArray.Add(GetCborFromObject(item));
             }
 
 
             return cborArray;
         }
 
-        private static object GetValue(Type type, CBORObject cbor)
+        private static object GetObjectFromCbor(Type type, CBORObject cbor)
         {
             if (cbor.IsNull)
                 return null;
@@ -155,41 +148,38 @@ namespace PeterO.Cbor.Converters
                 return new Guid(cbor.GetByteString());
 
             if (type.IsArray )
-                return GetArrayValue(type.GetElementType(), cbor);
+                return GetArrayFromCbor(type.GetElementType(), cbor);
 
             if (type.GenericTypeArguments.Length > 0 && type.Name.StartsWith("IEnumerable"))
-                return GetArrayValue(type.GenericTypeArguments[0], cbor);
+                return GetArrayFromCbor(type.GenericTypeArguments[0], cbor);
 
             if (type.Name.StartsWith("List"))
-                return GetListValue(type.GenericTypeArguments[0], cbor);
+                return GetListFromCbor(type.GenericTypeArguments[0], cbor);
 
             if (type.Name.StartsWith("Dictionary"))
-                return GetDictionaryValue(type, cbor);
+                return GetDictionaryFromCbor(type, cbor);
 
             if (!type.Namespace.StartsWith("System"))
-                return GetObjectValue(type, cbor);
+            {
+                object instance = Activator.CreateInstance(type);
+
+                var props = type.GetRuntimeProperties();
+
+                foreach (var prop in props)
+                {
+                    if (cbor.ContainsKey(prop.Name))
+                    {
+                        prop.SetValue(instance, GetObjectFromCbor(prop.PropertyType, cbor[prop.Name]));
+                    }
+                }
+
+                return instance;
+            }
 
             return null;
         }
 
-        private static object GetObjectValue(Type type, CBORObject cbor)
-        {
-            object instance = Activator.CreateInstance(type);
-
-            var props = type.GetRuntimeProperties();
-
-            foreach (var prop in props)
-            {
-                if (cbor.ContainsKey(prop.Name))
-                {
-                    prop.SetValue(instance, GetValue(prop.PropertyType, cbor[prop.Name]));
-                }
-            }
-
-            return instance;
-        }
-
-        private static object GetDictionaryValue(Type type, CBORObject cbor)
+        private static object GetDictionaryFromCbor(Type type, CBORObject cbor)
         {
             var dictType = typeof(Dictionary<,>).MakeGenericType(type.GenericTypeArguments);
             var dictionray = Activator.CreateInstance(dictType) as IDictionary;
@@ -199,32 +189,30 @@ namespace PeterO.Cbor.Converters
 
             foreach (var key in cbor.Keys)
             {
-                dictionray.Add(GetValue(keyType, key), GetValue(valType, cbor[key]));
+                dictionray.Add(GetObjectFromCbor(keyType, key), GetObjectFromCbor(valType, cbor[key]));
             }
 
             return dictionray;
         }
 
-        private static object GetListValue(Type elementType, CBORObject cbor)
+        private static object GetListFromCbor(Type elementType, CBORObject cbor)
         {
             var genericListType = typeof(List<>).MakeGenericType(new[] { elementType });
-            return Activator.CreateInstance(genericListType, GetArrayValue(elementType, cbor));
+            return Activator.CreateInstance(genericListType, GetArrayFromCbor(elementType, cbor));
         }
 
-        private static object GetArrayValue(Type elementType, CBORObject cbor)
+        private static object GetArrayFromCbor(Type elementType, CBORObject cbor)
         {
             var value = Array.CreateInstance(elementType, cbor.Values.Count);
 
             int index = 0;
             foreach (var item in cbor.Values)
             {
-                value.SetValue(GetValue(elementType, item), index);
+                value.SetValue(GetObjectFromCbor(elementType, item), index);
                 index++;
             }
 
             return value;
         }
-
-        private static IEnumerable<PropertyInfo> GetProperties<T>() => typeof(T).GetRuntimeProperties();
     }
 }
