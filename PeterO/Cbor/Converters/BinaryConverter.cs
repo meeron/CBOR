@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -14,14 +15,36 @@ namespace PeterO.Cbor.Converters
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Serialize(T)"]/*'/>
         public static byte[] Serialize<T>(T obj)
         {
-            return GetCborFromObject(obj).EncodeToBytes();
+            using (var memStr = new MemoryStream())
+            {
+                SerializeToStream(memStr, obj);
+
+                return memStr.ToArray();
+            }
+        }
+
+        /// <include file='../../../docs.xml'
+        /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.SerializeToStream(System.IO.Stream, T)"]/*'/>
+        public static void SerializeToStream<T>(Stream inputStream, T obj)
+        {
+            GetCborFromObject(obj).WriteTo(inputStream);
         }
 
         /// <include file='../../../docs.xml'
         /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.Deserialize(System.Byte[])"]/*'/>
         public static T Deserialize<T>(byte[] serializedOb)
         {
-            return (T)GetObjectFromCbor(typeof(T), CBORObject.DecodeFromBytes(serializedOb));
+            using (var memStr = new MemoryStream(serializedOb))
+            {
+                return DeserializeFromStream<T>(memStr);
+            }
+        }
+
+        /// <include file='../../../docs.xml'
+        /// path='docs/doc[@name="T:PeterO.Cbor.Converters.BinaryConverter.DeserializeFromStream(System.IO.Stream)"]/*'/>
+        public static T DeserializeFromStream<T>(Stream inputStream)
+        {
+            return (T)GetObjectFromCbor(typeof(T), CBORObject.Read(inputStream));
         }
 
         private static CBORObject GetCborFromObject(object value)
