@@ -45,7 +45,7 @@ namespace PeterO.Cbor.Converters
                 return CBORObject.FromObject(((Guid)value).ToByteArray());
 
             if (value is Enum)
-                throw new NotSupportedException("Enums are not supported");
+                return CBORObject.FromObject((int)value);
 
             if (value is IDictionary)
                 return GetCborFromDictionary(value as IDictionary);
@@ -146,6 +146,9 @@ namespace PeterO.Cbor.Converters
 
             if (type == typeof(Guid))
                 return new Guid(cbor.GetByteString());
+
+            if (type.GetTypeInfo().IsEnum)
+                return Enum.ToObject(type, cbor.AsInt32());
 
             if (type.IsArray )
                 return GetArrayFromCbor(type.GetElementType(), cbor);

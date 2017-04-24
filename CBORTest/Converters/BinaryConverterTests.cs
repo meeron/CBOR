@@ -69,7 +69,8 @@ namespace CBORTest.Converters
                 DateTime = DateTime.Now,
                 TimeSpan = TimeSpan.MaxValue,
                 DateTimeOffset = DateTimeOffset.Now,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                CustomEnum = EValues.Age
             };
 
             byte[] serializedData = BinaryConverter.Serialize(testObj);
@@ -80,6 +81,7 @@ namespace CBORTest.Converters
             Assert.AreEqual(testObj.TimeSpan, deserializedObj.TimeSpan);
             Assert.AreEqual(testObj.DateTimeOffset, deserializedObj.DateTimeOffset);
             Assert.AreEqual(testObj.Guid, deserializedObj.Guid);
+            Assert.AreEqual(testObj.CustomEnum, deserializedObj.CustomEnum);
         }
 
         [Test]
